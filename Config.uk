@@ -1,0 +1,9 @@
+config LIBHARFBUZZ
+    bool "HarfBuzz - text shaping library"
+    depends on HAVE_LIBC
+    select LIBCXX
+    select CXX_THREADS
+    select LIBPOSIX_SYSINFO
+    select LIBVFS_CORE
+    imply LIBUKMMAP
+    default n
