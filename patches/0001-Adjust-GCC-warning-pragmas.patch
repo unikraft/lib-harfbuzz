@@ -1,0 +1,39 @@
+From 219de9db7283b07149094227acfeb2567c9a7487 Mon Sep 17 00:00:00 2001
+From: Andrei Tatar <andrei@unikraft.io>
+Date: Mon, 21 Aug 2023 16:14:59 +0200
+Subject: [PATCH] Adjust GCC warning pragmas
+
+This patch adjusts the GCC warning pragmas that hb.hh sets:
+- remove error on -Wredundant-decls; we have that with libcxx+musl
+- remove -Wundef as it was spamming warnings
+
+Signed-off-by: Andrei Tatar <andrei@unikraft.io>
+---
+ src/hb.hh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/hb.hh b/src/hb.hh
+index 972608d6a..029de1965 100644
+--- a/src/hb.hh
++++ b/src/hb.hh
+@@ -80,7 +80,7 @@
+ #pragma GCC diagnostic error   "-Wnested-externs"
+ #pragma GCC diagnostic error   "-Wold-style-definition"
+ #pragma GCC diagnostic error   "-Wpointer-arith"
+-#pragma GCC diagnostic error   "-Wredundant-decls"
++//#pragma GCC diagnostic error   "-Wredundant-decls"
+ #pragma GCC diagnostic error   "-Wreorder"
+ #pragma GCC diagnostic error   "-Wsign-compare"
+ #pragma GCC diagnostic error   "-Wstrict-prototypes"
+@@ -109,7 +109,7 @@
+ #pragma GCC diagnostic warning "-Wlogical-op"
+ #pragma GCC diagnostic warning "-Wmaybe-uninitialized"
+ #pragma GCC diagnostic warning "-Wmissing-format-attribute"
+-#pragma GCC diagnostic warning "-Wundef"
++//#pragma GCC diagnostic warning "-Wundef"
+ #pragma GCC diagnostic warning "-Wunsafe-loop-optimizations"
+ #pragma GCC diagnostic warning "-Wunused-but-set-variable"
+ #endif
+-- 
+2.41.0
+

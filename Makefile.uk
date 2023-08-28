@@ -1,0 +1,142 @@
+#  libharfbuzz Makefile.uk
+#
+#  Authors: Andrei Tatar <andrei@unikraft.io>
+#
+#  Copyright (c) 2023, Unikraft GmbH and The Unikraft Authors.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the names of its
+#     contributors may be used to endorse or promote products derived from
+#     this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+################################################################################
+# Library registration
+################################################################################
+$(eval $(call addlib_s,libharfbuzz,$(CONFIG_LIBHARFBUZZ)))
+
+################################################################################
+# Sources
+################################################################################
+LIBHARFBUZZ_VERSION=8.1.1
+LIBHARFBUZZ_URL=https://github.com/harfbuzz/harfbuzz/releases/download/$(LIBHARFBUZZ_VERSION)/harfbuzz-$(LIBHARFBUZZ_VERSION).tar.xz
+LIBHARFBUZZ_DIRNAME=harfbuzz-$(LIBHARFBUZZ_VERSION)
+LIBHARFBUZZ_PATCHDIR=$(LIBHARFBUZZ_BASE)/patches
+$(eval $(call fetch,libharfbuzz,$(LIBHARFBUZZ_URL)))
+$(eval $(call patch,libharfbuzz,$(LIBHARFBUZZ_PATCHDIR),$(LIBHARFBUZZ_DIRNAME)))
+
+################################################################################
+# Helpers
+################################################################################
+LIBHARFBUZZ_SRC = $(LIBHARFBUZZ_ORIGIN)/$(LIBHARFBUZZ_DIRNAME)
+
+################################################################################
+# Library includes
+################################################################################
+# API
+LIBHARFBUZZ__API += -I$(LIBHARFBUZZ_SRC)/src
+
+CINCLUDES-$(CONFIG_LIBHARFBUZZ) += $(LIBHARFBUZZ__API)
+CXXINCLUDES-$(CONFIG_LIBHARFBUZZ) += $(LIBHARFBUZZ__API)
+
+# Internal
+LIBHARFBUZZ_CXXINCLUDES += -iquote$(LIBHARFBUZZ_BASE)/include
+
+################################################################################
+# Global flags
+################################################################################
+# HarfBuzz headers produce documentation warnings w/ clang; disable them
+ifeq ($(CONFIG_LIBHARFBUZZ),y)
+CFLAGS-$(call have_clang) += -Wno-documentation -Wno-documentation-unknown-command
+CXXFLAGS-$(call have_clang) += -Wno-documentation -Wno-documentation-unknown-command
+endif
+
+LIBHARFBUZZ_CXXFLAGS += -std=c++11
+LIBHARFBUZZ_CXXFLAGS += -fno-exceptions
+LIBHARFBUZZ_CXXFLAGS += -fno-threadsafe-statics
+LIBHARFBUZZ_CXXFLAGS += -fvisibility-inlines-hidden
+LIBHARFBUZZ_CXXFLAGS += -fno-rtti
+LIBHARFBUZZ_CXXFLAGS += -DHAVE_CONFIG_H
+
+################################################################################
+# Library sources
+################################################################################
+# These are taken from the upstream build in the order that ninja builds them.
+# Please take care to maintain the order when updating.
+################################################################################
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-aat-layout.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-aat-map.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-blob.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-buffer-serialize.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-buffer-verify.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-buffer.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-common.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-draw.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-paint.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-paint-extents.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-face.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-face-builder.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-fallback-shape.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-font.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-map.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-number.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-cff1-table.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-cff2-table.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-color.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-face.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-font.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-outline.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-layout.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-map.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-math.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-meta.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-metrics.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-name.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-shaper-arabic.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-shaper-default.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-shaper-hangul.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-shaper-hebrew.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-shaper-indic-table.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-shaper-indic.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-shaper-khmer.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-shaper-myanmar.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-shaper-syllabic.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-shaper-thai.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-shaper-use.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-shaper-vowel-constraints.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-shape-fallback.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-shape-normalize.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-shape.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-tag.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ot-var.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-set.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-shape-plan.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-shape.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-shaper.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-static.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-style.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ucd.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-unicode.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-ft.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-cairo.cc
+LIBHARFBUZZ_SRCS-y += $(LIBHARFBUZZ_SRC)/src/hb-cairo-utils.cc
